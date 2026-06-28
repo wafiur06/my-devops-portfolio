@@ -27,11 +27,15 @@ jobs:
       - name: Install LocalStack CLI (awslocal)
         run: pip install awscli-local
 
-      - name: Configure AWS Credentials
+      - name: Create S3 Bucket and Deploy
         run: |
-          aws configure set aws_access_key_id test
-          aws configure set aws_secret_access_key test
-          aws configure set region us-east-1
+          awslocal s3 mb s3://my-portfolio-bucket
+          # s3 cp এর পরিবর্তে s3api put-object ব্যবহার করুন যা হেডার জনিত সমস্যা এড়িয়ে যায়
+          awslocal s3api put-object \
+            --bucket my-portfolio-bucket \
+            --key index.html \
+            --body index.html \
+            --content-type "text/html"
 
       - name: Create S3 Bucket and Deploy
         run: |
