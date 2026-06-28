@@ -12,11 +12,9 @@ permissions:
 
 jobs:
   # জব ১: LocalStack S3 টেস্টিং (আপনার ডেভঅপস প্র্যাকটিস)
-  # জব ১: LocalStack S3 টেস্টিং (আপনার ডেভঅপস প্র্যাকটিস)
   localstack-test:
     runs-on: ubuntu-latest
     steps:
-      steps:
       # ১. সবার প্রথমে কোড রানার এনভায়রনমেন্টে নিয়ে আসতে হবে
       - name: Checkout code
         uses: actions/checkout@v4
@@ -65,7 +63,7 @@ jobs:
       - name: Verify S3 Deployment
         run: awslocal s3 ls s3://my-portfolio-bucket/
 
-  # জব ২: ওয়েবসাইট লাইভ করা (যাতে ব্রাউজারে দেখতে পারেন)
+  # জব ২: ওয়েবসাইট লাইভ করা (যাতে ব্রাউজারে দেখতে পারেন)
   github-pages-deploy:
     runs-on: ubuntu-latest
     needs: localstack-test # লোকালস্ট্যাক টেস্ট পাস করলেই কেবল লাইভ হবে
