@@ -1,95 +1,108 @@
-# 🚀 Portfolio Deployment using GitHub Actions 
+# 🚀 DevOps Portfolio CI/CD Pipeline (LocalStack & GitHub Pages)
 
-This project uses GitHub Actions to automatically deploy the portfolio website to an Amazon S3 bucket every time new changes are pushed to the `main` branch.
+This project uses GitHub Actions to automatically test AWS S3 deployment commands locally using **LocalStack** and deploys the portfolio website securely to **GitHub Pages** every time new changes are pushed to the `main` branch. 
 
 ## 📌 Overview
 
-- CI/CD pipeline powered by GitHub Actions
-
-- Automatic deployment to an AWS S3 static website hosting bucket
-
-- AWS IAM User configured with AdministratorAccess for full permissions
-
-- Deployment triggered on every push to the main branch
+- **Automated CI/CD Pipeline:** Fully managed by GitHub Actions.
+- **Cost-Free AWS Testing:** Uses LocalStack to mock an AWS S3 environment locally, avoiding real AWS infrastructure costs.
+- **Zero Secrets Required:** No need to expose real IAM credentials or manage GitHub Secrets.
+- **Production Deployment:** Automatic and secure deployment to GitHub Pages upon successful integration testing.
+- **Continuous Deployment:** Triggered automatically on every push to the `main` branch.
 
 ## ⚙️ GitHub Actions Workflow
 
-- This repository includes a deployment workflow in:
-` .github/workflows/main.yml`
+This repository includes a deployment workflow located at:
+`.github/workflows/deploy.yml`
 
-```bash
-name: Portfolio Deployment
+The workflow is divided into two main jobs (`localstack-test` and `github-pages-deploy`):
+
+```yaml
+name: Portfolio CI/CD (LocalStack & GitHub Pages)
 
 on:
   push:
     branches:
-    - main
+      - main 
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  build-and-deploy:
+  # Job 1: Integration Testing with LocalStack
+  localstack-test:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+      - name: Start LocalStack (v3.8.0)
+        run: |
+          docker run -d -p 4566:4566 --name localstack_ci localstack/localstack:3.8.0
+          # Custom health check loop applied here
 
-    - name: Deploy static site to S3 bucket
-      run: aws s3 sync . s3://Your_Bucket_Name --delete
+      - name: Install LocalStack CLI (awslocal)
+        run: pip install awscli-local
+
+      - name: Configure Dummy AWS Credentials
+        run: |
+          aws configure set aws_access_key_id test
+          aws configure set aws_secret_access_key test
+          aws configure set region us-east-1
+
+      - name: Create S3 Bucket and Deploy (Testing)
+        run: |
+          awslocal s3 mb s3://my-portfolio-bucket
+          awslocal s3api put-object --bucket my-portfolio-bucket --key index.html --body index.html --content-type "text/html"
+
+  # Job 2: Live Deployment
+  github-pages-deploy:
+    runs-on: ubuntu-latest
+    needs: localstack-test # Runs only if LocalStack test passes
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' 
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
 ```
 
-## 🔐 AWS Setup
+## 🔐 AWS Setup (Mock Environment)
 
-### IAM User
-#### Create a new IAM user and attache Policy: `AdministratorAccess`
-This grants full permissions to manage S3 and any other AWS services.
-The user’s credentials are stored as GitHub Secrets:
+### No Real IAM User Required
 
-- AWS_ACCESS_KEY_ID
+Since we are using LocalStack for the DevOps pipeline, we do not need to create an actual AWS IAM User or attach `AdministratorAccess` policies.
 
-- AWS_SECRET_ACCESS_KEY
+The pipeline uses **dummy credentials** to interact with the LocalStack container securely. **No GitHub Secrets are needed.**
 
-## Here is an example
-![Secret Key Added](https://github.com/Mainul41561/portfolio-mainul/blob/main/githubsecret.png)
+* `AWS_ACCESS_KEY_ID`: test
+* `AWS_SECRET_ACCESS_KEY`: test
+* `AWS_REGION`: us-east-1
 
+## 🪣 LocalStack S3 Bucket Configuration
 
-## 🪣 S3 Bucket Configuration
-### Your S3 bucket is configured for Static Website Hosting:
+During the CI/CD run, a temporary mock S3 bucket is created inside the GitHub Actions runner for integration testing.
 
-- 1.Bucket Name: Your_Bucket_Name
+* **Bucket Name:** `my-portfolio-bucket`
+* **Operation:** The pipeline successfully uses low-level API (`s3api put-object`) to bypass `x-amz-trailer` header conflicts and uploads the `index.html` file.
+* **Verification:** Runs `awslocal s3 ls` to verify the deployment locally before proceeding to production.
 
-- 2.Static Website Hosting enabled
-
-- 3.Public access allowed
-
-- 4.Bucket Policy for public access:
-```bash
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "PublicReadGetObject",
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::protfolio-mainul/*"
-    }
-  ]
-}
-```
 ## 🚀 Automatic Deployment Process
 
-#### Once configured:
+#### How the CI/CD pipeline works:
 
-- Push changes to main
+1. Push your updated code to the `main` branch.
+2. GitHub Actions triggers the workflow.
+3. **Phase 1 (Test):** LocalStack spins up, configures the mock AWS CLI, creates the S3 bucket, and tests the upload process.
+4. **Phase 2 (Deploy):** Once the test passes, the repository files are packaged and published to GitHub Pages.
+5. Your portfolio updates automatically on the live server.
 
-- GitHub Actions triggers the workflow
-
-- Files are synced to the S3 bucket
-
-Your portfolio will update automatically
