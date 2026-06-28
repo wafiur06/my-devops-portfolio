@@ -28,11 +28,10 @@ jobs:
         run: pip install awscli-local
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: mock-key
-          aws-secret-access-key: mock-secret
-          aws-region: us-east-1
+        run: |
+          aws configure set aws_access_key_id test
+          aws configure set aws_secret_access_key test
+          aws configure set region us-east-1
 
       - name: Create S3 Bucket and Deploy
         run: |
