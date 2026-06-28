@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Md Wafiur Rahman | DevOps & Cloud Orchestrator</title>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       GLOBAL DESIGN SYSTEM & TOKENS
+       ========================================================== */
+    :root {
+      color-scheme: dark;
+
+      /* COLORS */
+      --background: #050507;
+      --surface: rgba(17, 17, 19, 0.65);
+      --surface-secondary: rgba(24, 24, 27, 0.75);
+      --surface-tertiary: rgba(32, 32, 36, 0.85);
+      --foreground: #fafafa;
+      --foreground-secondary: #d4d4d8;
+      --foreground-muted: #a1a1aa;
+      --border: rgba(39, 39, 42, 0.6);
+      --border-light: rgba(63, 63, 70, 0.8);
+      
+      /* Vibrant DevOps Accents */
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --accent-purple: #c084fc;
+      --success: #22c55e;
+      --warning: #facc15;
+
+      /* TYPOGRAPHY */
+      --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+      --font-mono: "JetBrains Mono", Consolas, monospace;
+
+      /* SPACING & SIZING */
+      --container: 1140px;
+      --radius-md: 10px;
+      --radius-xl: 18px;
+      --radius-full: 9999px;
+      --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ==========================================================
+       RESET & BASE STYLES
+       ========================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body { 
+      background-color: var(--background); 
+      color: var(--foreground); 
+      font-family: var(--font-sans); 
+      line-height: 1.7; 
+      overflow-x: hidden; 
+    }
+    a { color: inherit; text-decoration: none; transition: color var(--transition-base); }
+    a:hover { color: var(--primary); }
+    ::selection { background: rgba(56, 189, 248, 0.25); color: white; }
+
+    /* ==========================================================
+       GRAFANA DASHBOARD 10441 BACKGROUND
+       ========================================================== */
+    .bg-devops {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: -10;
+      /* Load your local Grafana 10441 dashboard screenshot */
+      background-image: url('10441.png');
+      background-size: cover;
+      background-position: top center;
+      background-attachment: fixed;
+      filter: contrast(1.1) brightness(0.6);
+    }
+
+    .bg-devops::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(5, 5, 7, 0.90), rgba(5, 5, 7, 0.98)),
+                  linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), 
+                  linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    /* ==========================================================
+       TYPOGRAPHY
+       ========================================================== */
+    h1, h2, h3 { color: var(--foreground); font-weight: 700; line-height: 1.1; letter-spacing: -0.04em; }
+    h1 { font-size: clamp(3rem, 6vw, 4.5rem); }
+    h2 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin-bottom: 2rem; }
+    h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    p { color: var(--foreground-secondary); font-size: 1.1rem; line-height: 1.8; max-width: 70ch; }
+    
+    .label-mono { color: var(--primary); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; font-family: var(--font-mono); display: block; margin-bottom: 0.5rem; }
+
+    /* ==========================================================
+       LAYOUT & GRIDS
+       ========================================================== */
+    .container { width: min(100% - 2rem, var(--container)); margin-inline: auto; position: relative; z-index: 1; }
+    .section { padding-block: 7rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3rem; }
+    .flex-between { display: flex; align-items: center; justify-content: space-between; }
+    
+    @media (max-width: 968px) { .grid-2 { grid-template-columns: 1fr; gap: 3rem; } }
+
+    /* ==========================================================
+       COMPONENTS (Cards, Buttons, Badges)
+       ========================================================== */
+    .card {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+      display: flex; flex-direction: column; height: 100%;
+    }
+    .card:hover { transform: translateY(-8px) scale(1.01); border-color: var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background: var(--surface-secondary); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem; height: 48px; padding-inline: 1.75rem;
+      border-radius: var(--radius-md); font-weight: 600; cursor: pointer; border: none;
+      transition: all var(--transition-base);
+      backdrop-filter: blur(8px);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3); }
+    .btn-primary::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      transition: left 0.6s ease; z-index: -1;
+    }
+    .btn-primary:hover::before { left: 100%; }
+    .btn-primary:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 25px rgba(56, 189, 248, 0.6); }
+
+    .btn-secondary { background: rgba(255,255,255,0.05); color: var(--foreground); border: 1px solid var(--border-light); }
+    .btn-secondary:hover { 
+      background: rgba(56, 189, 248, 0.15); border-color: var(--primary); color: white;
+      transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; padding: 0.4rem 1rem;
+      border-radius: var(--radius-full); border: 1px solid var(--border-light); background: rgba(0,0,0,0.4);
+      font-size: 0.85rem; color: var(--foreground-secondary); font-family: var(--font-mono);
+      transition: transform var(--transition-base), border-color var(--transition-base);
+    }
+    .card:hover .badge { border-color: rgba(56, 189, 248, 0.5); transform: translateY(-2px); }
+
+    /* ==========================================================
+       CONTACT LINKS FIX (Prevents Blur on Scale)
+       ========================================================== */
+    .contact-link {
+      display: inline-block;
+      font-weight: 500;
+      color: var(--foreground);
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+      backface-visibility: hidden;
+      -webkit-font-smoothing: subpixel-antialiased;
+      transform: translateZ(0);
+    }
+    .contact-link:hover {
+      transform: scale(1.08) translateZ(0);
+      color: var(--primary);
+    }
+
+    /* ==========================================================
+       FORM STYLES
+       ========================================================== */
+    .form-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-light);
+      color: var(--foreground);
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      transition: all var(--transition-base);
+      margin-bottom: 1.25rem;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+      background: rgba(0, 0, 0, 0.6);
+    }
+    .form-input::placeholder { color: var(--foreground-muted); }
+    textarea.form-input { min-height: 140px; resize: vertical; }
+
+    /* ==========================================================
+       TERMINAL UI
+       ========================================================== */
+    .terminal-window {
+      background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+      transition: transform var(--transition-base), box-shadow var(--transition-base);
+    }
+    .terminal-window:hover { transform: translateY(-5px); box-shadow: 0 30px 60px -12px rgba(56, 189, 248, 0.2); }
+    .terminal-header {
+      background: rgba(24, 24, 27, 0.6); padding: 0.75rem 1.5rem; display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .terminal-body { padding: 2rem; font-family: var(--font-mono); font-size: 0.9rem; color: #a5d6ff; line-height: 1.8; }
+    
+    @keyframes typing { from { width: 0 } to { width: 100% } }
+    @keyframes blink { 50% { border-color: transparent } }
+    .typewriter { overflow: hidden; white-space: nowrap; border-right: 2px solid var(--primary); animation: typing 3s steps(40, end), blink .75s step-end infinite; }
+  </style>
+</head>
+
+<body>
+
+  <!-- FIXED GRAFANA DASHBOARD BACKGROUND -->
+  <div class="bg-devops"></div>
+
+  <!-- NAVBAR -->
+  <header style="position: fixed; width: 100%; top: 0; z-index: 100; background: rgba(5,5,7,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border);">
+    <div class="container flex-between" style="height: 75px;">
+      <a href="#" style="font-size: 1.5rem; font-weight: 700;">wafiur<span style="color: var(--primary);">.devops</span></a>
+      <nav style="display: flex; gap: 2rem; font-size: 0.95rem; font-weight: 500;">
+        <a href="#home">Home</a>
+        <a href="#projects">Deployments</a>
+        <a href="#certifications">Certifications</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    
+    <!-- HERO SECTION -->
+    <section id="home" class="section" style="min-height: 100vh; display: flex; align-items: center; padding-top: 8rem;">
+      <div class="grid-2" style="align-items: center;">
+        <div>
+          <span class="label-mono">DevOps & Cloud Orchestrator</span>
+          <h1 style="margin-block: 1rem 1.5rem;">Infrastructure <br> <span style="color: var(--primary);">Automation</span></h1>
+          <p style="margin-bottom: 2.5rem;">
+            Highly motivated DevOps and Cloud enthusiast specializing in Linux systems, network architecture, and containerized workloads. Focused on establishing scalable GitOps workflows and robust system monitoring to deliver secure cloud environments.
+          </p>
+          <div style="display: flex; gap: 1rem;">
+            <a href="#projects" class="btn btn-primary">View Deployments</a>
+            <a href="#contact" class="btn btn-secondary">Contact Me</a>
+          </div>
+        </div>
+
+        <!-- Terminal UI Card -->
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="dot" style="background: #ff5f56;"></div>
+            <div class="dot" style="background: #ffbd2e;"></div>
+            <div class="dot" style="background: #27c93f;"></div>
+          </div>
+          <div class="terminal-body">
+            <span style="color: var(--success);">wafiur@infra</span>:<span style="color: var(--primary);">~</span>$ ./check_status.sh<br>
+            [+] Initiating system diagnostics...<br>
+            [+] Container Engine: <span style="color: var(--success);">Docker Runtime Active</span><br>
+            [+] Orchestration: <span style="color: var(--success);">Kubernetes (K3s) Healthy</span><br>
+            [+] CI/CD Pipeline: <span style="color: var(--success);">Jenkins & ArgoCD Synced</span><br>
+            <br>
+            <span style="color: var(--success);">wafiur@infra</span>:<span style="color: var(--primary);">~</span>$ echo "Ready for Deployment"<br>
+            <span class="typewriter" style="display: inline-block; color: var(--foreground);">Ready for Deployment</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS SECTION -->
+    <section id="projects" class="section">
+      <span class="label-mono">Architecture Records</span>
+      <h2>Production Workloads</h2>
+
+      <div class="grid-2">
+        <!-- Project 1 -->
+        <a href="https://github.com/wafiur06/EKS-Wanderlust-Mega-Project" target="_blank" class="card">
+          <span class="label-mono" style="color: var(--accent-purple);">AWS EKS Orchestration</span>
+          <h3 style="margin-bottom: 1rem;">Wanderlust Mega-Project: Microservices on AWS</h3>
+          <p style="font-size: 1rem; margin-bottom: 1.5rem; flex-grow: 1;">Automated multi-stage builds and implemented declarative GitOps deployment workflows using ArgoCD and Kubernetes manifests.</p>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="badge">AWS EKS</span> <span class="badge">ArgoCD</span> <span class="badge">Docker</span>
+          </div>
+        </a>
+
+        <!-- Project 2 -->
+        <a href="https://github.com/wafiur06/homelab-k3s-minio-grafana" target="_blank" class="card">
+          <span class="label-mono" style="color: var(--accent-purple);">Homelab Analytics</span>
+          <h3 style="margin-bottom: 1rem;">K3s Cluster with MinIO & Grafana Observability</h3>
+          <p style="font-size: 1rem; margin-bottom: 1.5rem; flex-grow: 1;">Built a local cloud environment provisioning cluster observability dashboards via Helm and S3-compatible object storage.</p>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="badge">K3s</span> <span class="badge">MinIO</span> <span class="badge">Prometheus</span>
+          </div>
+        </a>
+
+        <!-- Project 3 -->
+        <a href="https://github.com/wafiur06/Multipath-Storage-Setup" target="_blank" class="card">
+          <span class="label-mono" style="color: var(--accent-purple);">Storage Networking</span>
+          <h3 style="margin-bottom: 1rem;">High Availability iSCSI Multipath Storage</h3>
+          <p style="font-size: 1rem; margin-bottom: 1.5rem; flex-grow: 1;">Configured MPIO on Linux environments to establish redundant network paths, preventing SPOF at the storage layer.</p>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="badge">Linux</span> <span class="badge">iSCSI</span> <span class="badge">Networking</span>
+          </div>
+        </a>
+
+        <!-- Project 4 -->
+        <a href="https://github.com/wafiur06/InnoDB_Cluster_Setup" target="_blank" class="card">
+          <span class="label-mono" style="color: var(--accent-purple);">Database Clustering</span>
+          <h3 style="margin-bottom: 1rem;">MySQL InnoDB Cluster Configuration</h3>
+          <p style="font-size: 1rem; margin-bottom: 1.5rem; flex-grow: 1;">Deployed a fault-tolerant database cluster with automated failover and state synchronization for zero data loss.</p>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="badge">MySQL</span> <span class="badge">High Availability</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- CERTIFICATIONS & SKILLS -->
+    <section id="certifications" class="section">
+      <div class="grid-2">
+        <!-- Certifications -->
+        <div>
+          <span class="label-mono">Verified Credentials</span>
+          <h2>Certifications</h2>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="background: var(--surface); backdrop-filter: blur(12px); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); transition: transform var(--transition-base), border-color var(--transition-base); cursor: default;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='var(--primary)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='var(--border-light)';">
+              <h3 style="font-size: 1.2rem;">Linux Foundation LFS101</h3>
+              <p style="font-size: 0.95rem;">Introduction to Linux & System Administration</p>
+            </div>
+            <div style="background: var(--surface); backdrop-filter: blur(12px); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); transition: transform var(--transition-base), border-color var(--transition-base); cursor: default;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='var(--primary)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='var(--border-light)';">
+              <h3 style="font-size: 1.2rem;">Cisco CCNA Certifications</h3>
+              <p style="font-size: 0.95rem;">Networking Basics & Packet Tracer Implementation</p>
+            </div>
+            <div style="background: var(--surface); backdrop-filter: blur(12px); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-light); transition: transform var(--transition-base), border-color var(--transition-base); cursor: default;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='var(--primary)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='var(--border-light)';">
+              <h3 style="font-size: 1.2rem;">Certified Ethical Hacker (CEH)</h3>
+              <p style="font-size: 0.95rem;">Advanced Security & Penetration Testing</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div>
+          <span class="label-mono">Technical Stack</span>
+          <h2>Core Technologies</h2>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+            <span class="badge">Docker Engine</span>
+            <span class="badge">Kubernetes (K8s)</span>
+            <span class="badge">Jenkins CI/CD</span>
+            <span class="badge">ArgoCD</span>
+            <span class="badge">AWS / EC2 / S3</span>
+            <span class="badge">GCP / GKE</span>
+            <span class="badge">Linux / Bash</span>
+            <span class="badge">Nginx / KVM</span>
+            <span class="badge">IPv4 & Subnetting</span>
+            <span class="badge">Prometheus</span>
+            <span class="badge">Grafana</span>
+            <span class="badge">Python / YAML</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="section">
+      <div class="card" style="padding: 4rem; justify-content: center;">
+        <div class="grid-2" style="align-items: center; gap: 4rem;">
+          
+          <!-- Contact Info -->
+          <div>
+            <span class="label-mono">Transmission Target</span>
+            <h2>Get In Touch</h2>
+            <p style="margin-bottom: 2.5rem;">
+              Whether you have a question regarding an infrastructure deployment, CI/CD setup, or just want to connect, feel free to drop a message.
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              <div>
+                <span class="label-mono" style="font-size: 0.75rem; color: var(--foreground-muted);">Location</span>
+                <p style="font-weight: 500; color: var(--foreground);">Dhaka, Bangladesh</p>
+              </div>
+              <div>
+                <span class="label-mono" style="font-size: 0.75rem; color: var(--foreground-muted);">Email Address</span>
+                <a href="mailto:wafiur2000@gmail.com" class="contact-link">wafiur2000@gmail.com</a>
+              </div>
+              <div>
+                <span class="label-mono" style="font-size: 0.75rem; color: var(--foreground-muted);">Phone</span>
+                <p style="font-weight: 500; color: var(--foreground);">+8801872828845</p>
+              </div>
+              <div>
+                <span class="label-mono" style="font-size: 0.75rem; color: var(--foreground-muted);">Social Profiles</span>
+                <div style="display: flex; gap: 1rem; margin-top: 0.5rem; align-items: center;">
+                  <a href="https://github.com/wafiur06" target="_blank" class="contact-link">GitHub</a>
+                  <span style="color: var(--border-light);">|</span>
+                  <a href="https://www.linkedin.com/in/md-wafiur-rahman-306580242" target="_blank" class="contact-link">LinkedIn</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Form -->
+          <div style="background: rgba(0,0,0,0.2); padding: 2.5rem; border-radius: var(--radius-xl); border: 1px solid var(--border-light);">
+            <form id="contactForm">
+              <input type="text" placeholder="Your Name" class="form-input" required>
+              <input type="email" placeholder="Your Email" class="form-input" required>
+              <textarea placeholder="Your Message..." class="form-input" required></textarea>
+              <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; height: 54px;">Send Transmission</button>
+              <p id="formStatus" style="display: none; color: var(--success); font-family: var(--font-mono); font-size: 0.85rem; margin-top: 1rem; text-align: center;">$ Message routed successfully.</p>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer style="border-top: 1px solid var(--border); padding: 3rem 0; text-align: center; background: rgba(17,17,19,0.7); backdrop-filter: blur(16px);">
+    <p style="font-size: 0.9rem; margin: 0 auto;">&copy; 2026 Md Wafiur Rahman. Continuous Delivery Enabled.</p>
+  </footer>
+
+  <!-- Simple Form Script -->
+  <script>
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const status = document.getElementById('formStatus');
+      status.style.display = 'block';
+      this.reset();
+      setTimeout(() => { status.style.display = 'none'; }, 4000);
+    });
+  </script>
+
+</body>
+</html>
