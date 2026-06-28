@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   # জব ১: LocalStack S3 টেস্টিং (আপনার ডেভঅপস প্র্যাকটিস)
+  # জব ১: LocalStack S3 টেস্টিং (আপনার ডেভঅপস প্র্যাকটিস)
   localstack-test:
     runs-on: ubuntu-latest
     steps:
@@ -21,21 +22,25 @@ jobs:
       - name: Start LocalStack
         run: |
           docker run -d -p 4566:4566 --name localstack_ci localstack/localstack:3.0.0
-          echo "Waiting for LocalStack to boot up..."
-          sleep 15
+          echo "Waiting for LocalStack S3 to be ready..."
+          
+          # Health Check Loop (১৫ সেকেন্ডের বদলে এটি ব্যবহার করা হচ্ছে)
+          while ! curl -s http://localhost:4566 > /dev/null; do
+            echo "Still booting up, waiting 5 seconds..."
+            sleep 5
+          done
+          
+          echo "LocalStack is fully up and running!"
+          sleep 5
 
       - name: Install LocalStack CLI (awslocal)
         run: pip install awscli-local
 
-      - name: Create S3 Bucket and Deploy
+      - name: Configure AWS Credentials
         run: |
-          awslocal s3 mb s3://my-portfolio-bucket
-          # s3 cp এর পরিবর্তে s3api put-object ব্যবহার করুন যা হেডার জনিত সমস্যা এড়িয়ে যায়
-          awslocal s3api put-object \
-            --bucket my-portfolio-bucket \
-            --key index.html \
-            --body index.html \
-            --content-type "text/html"
+          aws configure set aws_access_key_id test
+          aws configure set aws_secret_access_key test
+          aws configure set region us-east-1
 
       - name: Create S3 Bucket and Deploy
         run: |
