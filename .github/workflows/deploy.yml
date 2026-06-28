@@ -16,6 +16,27 @@ jobs:
   localstack-test:
     runs-on: ubuntu-latest
     steps:
+      - name: Start LocalStack
+        run: |
+          docker run -d -p 4566:4566 --name localstack_ci localstack/localstack:latest
+          echo "Waiting for LocalStack to be ready..."
+          
+          timeout=60
+          elapsed=0
+          
+          # হেলথ চেক লুপ (সর্বোচ্চ ৬০ সেকেন্ড অপেক্ষা করবে)
+          while ! curl -s http://localhost:4566/_localstack/health > /dev/null; do
+            if [ $elapsed -ge $timeout ]; then
+              echo "LocalStack failed to start within $timeout seconds. Here are the container logs:"
+              docker logs localstack_ci
+              exit 1
+            fi
+            echo "Still booting up, waiting 5 seconds..."
+            sleep 5
+            elapsed=$((elapsed+5))
+          done
+          
+          echo "LocalStack is fully up and running!"
       - name: Checkout code
         uses: actions/checkout@v4
 
