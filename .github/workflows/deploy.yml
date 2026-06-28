@@ -21,7 +21,7 @@ jobs:
 
       - name: Start LocalStack
         run: |
-          docker run -d -p 4566:4566 --name localstack_ci localstack/localstack:3.0.0
+          docker run -d -p 4566:4566 --name localstack_ci localstack/localstack:latest
           echo "Waiting for LocalStack S3 to be ready..."
           
           # Health Check Loop (১৫ সেকেন্ডের বদলে এটি ব্যবহার করা হচ্ছে)
